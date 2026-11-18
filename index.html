@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CivicPulse Karnataka - 17 Ordered Civic Accountability Modules</title>
+  <meta name="description" content="Comprehensive 17-module civic platform tracking all 224 Karnataka Vidhana Sabha MLAs. Features assembly performance, attendance, legal cases, affidavits, asset disclosures, office map locations, and AI feedback classification.">
+
+  <!-- FontAwesome Icons & Chart.js -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-container">
+
+    <!-- Module 1: Citizen Login Banner & Navbar -->
+    <header class="navbar">
+      <div style="display:flex; align-items:center; gap:1rem;">
+        <button class="nav-back-btn" onclick="switchTab('directory')" title="Return to Main Representatives View">
+          <i class="fa-solid fa-arrow-left"></i> Back
+        </button>
+        <a href="#" class="brand-logo" onclick="switchTab('directory')">
+          <div class="brand-icon">
+            <i class="fa-solid fa-building-columns"></i>
+          </div>
+          <div class="brand-text">
+            <h1>CivicPulse</h1>
+            <span>Karnataka Assembly • 224 Constituencies</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- Navigation Bar -->
+      <nav class="nav-tabs">
+        <button class="nav-tab-btn active" data-tab="directory">
+          <i class="fa-solid fa-users-viewfinder"></i> 224 Representatives
+        </button>
+        <button class="nav-tab-btn" data-tab="projects">
+          <i class="fa-solid fa-helmet-safety"></i> Development Projects
+        </button>
+        <button class="nav-tab-btn" data-tab="gis">
+          <i class="fa-solid fa-map-location-dot"></i> 🗺️ Locality GIS Map
+        </button>
+        <button class="nav-tab-btn" data-tab="promises">
+          <i class="fa-solid fa-handshake"></i> 📜 Promise Tracker
+        </button>
+        <button class="nav-tab-btn" data-tab="survey">
+          <i class="fa-solid fa-square-poll-vertical"></i> 📊 Service Survey
+        </button>
+        <button class="nav-tab-btn" data-tab="complaints">
+          <i class="fa-solid fa-triangle-exclamation"></i> Complaint Tracking
+        </button>
+        <button class="nav-tab-btn" data-tab="dashboard">
+          <i class="fa-solid fa-chart-line"></i> Analytics Dashboard
+        </button>
+        <button class="nav-tab-btn" data-tab="admin" id="nav-admin-tab" style="display:none;">
+          <i class="fa-solid fa-user-shield"></i> Admin Panel
+        </button>
+      </nav>
+
+      <!-- Role & Session Controls -->
+      <div class="nav-actions">
+        <!-- Multilingual Language Selector -->
+        <select id="lang-select" class="lang-select" onchange="switchLanguage(this.value)">
+          <option value="en">🌐 EN (English)</option>
+          <option value="kn">🌐 KN (ಕನ್ನಡ)</option>
+          <option value="hi">🌐 HI (हिंदी)</option>
+          <option value="ta">🌐 TA (தமிழ்)</option>
+          <option value="te">🌐 TE (తెలుగు)</option>
+        </select>
+        <span class="project-tag-cse" title="CSE Major Project Edition">CSE MAJOR PROJECT</span>
+        <div id="user-session-box" style="margin-right:0.5rem;"></div>
+        <div style="display:flex; background:rgba(30,41,59,0.6); border-radius:9999px; border:1px solid var(--border-color); padding:2px;">
+          <button class="role-btn active" id="btn-role-citizen"><i class="fa-solid fa-user"></i> Citizen View</button>
+          <button class="role-btn" id="btn-role-admin"><i class="fa-solid fa-key"></i> Admin Panel</button>
+        </div>
+        <button class="theme-toggle-btn" id="theme-toggle" title="Toggle Light/Dark Theme">
+          <i class="fa-solid fa-circle-half-stroke"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Hero Spotlight & Search Banner -->
+    <section class="hero-banner">
+      <h2 class="hero-title">Karnataka Legislative Assembly Scorecard</h2>
+      <p class="hero-subtitle">
+        Comprehensive 17-module governance tracking for all 224 Karnataka MLAs: Assembly attendance, starred questions, debates, affidavits, declared legal cases, assets & liabilities, and office locations.
+      </p>
+
+      <!-- Search & Filters -->
+      <div class="search-filter-box">
+        <div class="search-input-wrapper">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="search-input" class="search-input" placeholder="Search by MLA Name, Constituency (e.g. Kanakapura, Varuna, Chittapur), or District...">
+        </div>
+
+        <div class="filter-row">
+          <select id="filter-district" class="filter-select">
+            <option value="">All Districts (31)</option>
+          </select>
+
+          <select id="filter-party" class="filter-select">
+            <option value="">All Political Parties</option>
+            <option value="INC">INC (Congress)</option>
+            <option value="BJP">BJP</option>
+            <option value="JDS">JD(S)</option>
+            <option value="IND">Independent / Others</option>
+          </select>
+
+          <select id="filter-age" class="filter-select">
+            <option value="">All Age Brackets</option>
+            <option value="young">Young (< 45 yrs)</option>
+            <option value="mid">Mid Career (45 - 60 yrs)</option>
+            <option value="senior">Senior Leaders (> 60 yrs)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Quick Summary Stats Bar -->
+      <div class="stats-summary-bar">
+        <div class="stat-box">
+          <div class="stat-icon inc"><i class="fa-solid fa-flag"></i></div>
+          <div class="stat-details">
+            <h4 id="counter-inc">134</h4>
+            <span>INC Representatives</span>
+          </div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-icon bjp"><i class="fa-solid fa-sun"></i></div>
+          <div class="stat-details">
+            <h4 id="counter-bjp">66</h4>
+            <span>BJP Representatives</span>
+          </div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-icon jds"><i class="fa-solid fa-wheat-awn"></i></div>
+          <div class="stat-details">
+            <h4 id="counter-jds">19</h4>
+            <span>JD(S) Representatives</span>
+          </div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-icon proj"><i class="fa-solid fa-list-check"></i></div>
+          <div class="stat-details">
+            <h4 id="counter-projects">1120+</h4>
+            <span>Tracked Projects</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Content Container -->
+    <main class="main-content">
+
+      <!-- TAB 1: Directory -->
+      <div class="tab-pane active" id="tab-pane-directory">
+        <div class="politician-grid" id="politician-grid-container">
+          <!-- Rendered via app.js -->
+        </div>
+      </div>
+
+      <!-- TAB 2: Development Projects -->
+      <div class="tab-pane" id="tab-pane-projects">
+        <div class="section-title">
+          <span><i class="fa-solid fa-helmet-safety" style="color:var(--accent-primary);"></i> Development Projects Catalog</span>
+          <button class="nav-back-btn" onclick="switchTab('directory')"><i class="fa-solid fa-arrow-left"></i> Back to Representatives List</button>
+        </div>
+        <div id="global-projects-container"></div>
+      </div>
+
+      <!-- TAB GIS: Locality GIS Problem Map -->
+      <div class="tab-pane" id="tab-pane-gis">
+        <div style="margin-bottom:1rem;">
+          <button class="nav-back-btn" onclick="switchTab('directory')"><i class="fa-solid fa-arrow-left"></i> Back to Representatives List</button>
+        </div>
+        <div id="gis-map-container"></div>
+      </div>
+
+      <!-- TAB PROMISES: Public Promise & Progress Tracker -->
+      <div class="tab-pane" id="tab-pane-promises">
+        <div style="margin-bottom:1rem;">
+          <button class="nav-back-btn" onclick="switchTab('directory')"><i class="fa-solid fa-arrow-left"></i> Back to Representatives List</button>
+        </div>
+        <div id="promises-tracker-container"></div>
+      </div>
+
+      <!-- TAB SURVEY: 6-Service Satisfaction Survey -->
+      <div class="tab-pane" id="tab-pane-survey">
+        <div style="margin-bottom:1rem;">
+          <button class="nav-back-btn" onclick="switchTab('directory')"><i class="fa-solid fa-arrow-left"></i> Back to Representatives List</button>
+        </div>
+        <div id="service-survey-container"></div>
+      </div>
+
+      <!-- TAB 3: Complaint Tracking & Reporting -->
+      <div class="tab-pane" id="tab-pane-complaints">
+        <div style="margin-bottom:1rem;">
+          <button class="nav-back-btn" onclick="switchTab('directory')"><i class="fa-solid fa-arrow-left"></i> Back to Representatives List</button>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1.5fr; gap:2rem;">
+          <div style="background:var(--bg-card); padding:1.5rem; border-radius:var(--radius-lg); border:1px solid var(--border-color);">
+            <h3 style="margin-bottom:1rem; display:flex; align-items:center; justify-content:space-between;">
+              <span><i class="fa-solid fa-bullhorn" style="color:var(--accent-primary);"></i> Report Local Problem</span>
+            </h3>
+            <form id="complaint-form">
+              <div class="form-group">
+                <label class="form-label">Constituency</label>
+                <select id="complaint-constituency-select" class="form-control" required></select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Category</label>
+                <select id="complaint-category-select" class="form-control" required>
+                  <option value="Roads & Streetlights">Roads & Streetlights</option>
+                  <option value="Water & Sewage">Water & Sewage</option>
+                  <option value="Cleanliness & Sanitation">Cleanliness & Sanitation</option>
+                  <option value="Public Safety">Public Safety</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Problem Title</label>
+                <input type="text" id="complaint-title-input" class="form-control" placeholder="Title..." required>
+              </div>
+              <div class="form-group">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+                  <label class="form-label" style="margin:0;">Description</label>
+                  <button type="button" id="btn-voice-input" class="mic-btn" onclick="toggleVoiceRecording()">
+                    <i class="fa-solid fa-microphone"></i> <span id="mic-status-text">Speak Voice</span>
+                  </button>
+                </div>
+                <textarea id="complaint-desc-input" class="form-control" placeholder="Describe the issue or click microphone to speak..." required></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Your Name</label>
+                <input type="text" id="complaint-name-input" class="form-control" placeholder="Name..." required>
+              </div>
+              <div class="form-group" style="display:flex; align-items:center; gap:0.5rem;">
+                <input type="checkbox" id="complaint-anon-checkbox" style="accent-color:var(--accent-cyan); width:16px; height:16px; cursor:pointer;" onchange="toggleAnonymousFiling(this.checked)">
+                <label for="complaint-anon-checkbox" style="font-size:0.85rem; color:var(--text-muted); cursor:pointer;">File Anonymously (Duplicate Protection Active)</label>
+              </div>
+              <button type="submit" class="btn-primary" style="width:100%;"><i class="fa-solid fa-paper-plane"></i> Submit & AI Classify</button>
+            </form>
+          </div>
+
+          <div>
+            <div class="section-title"><span><i class="fa-solid fa-list-check" style="color:var(--accent-primary);"></i> Complaint Tracking & Status</span></div>
+            <div id="complaints-list-container"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4: Analytics Dashboard -->
+      <div class="tab-pane" id="tab-pane-dashboard">
+        <div style="margin-bottom:1rem;">
+          <button class="nav-back-btn" onclick="switchTab('directory')"><i class="fa-solid fa-arrow-left"></i> Back to Representatives List</button>
+        </div>
+        <div id="dashboard-charts-container"></div>
+      </div>
+
+      <!-- TAB 5: Admin Panel -->
+      <div class="tab-pane" id="tab-pane-admin">
+        <div style="margin-bottom:1rem;">
+          <button class="nav-back-btn" onclick="switchTab('directory')"><i class="fa-solid fa-arrow-left"></i> Back to Representatives List</button>
+        </div>
+        <div id="admin-panel-container"></div>
+      </div>
+
+    </main>
+
+    <!-- Modal Window: 17-Module Representative Record -->
+    <div class="modal-backdrop" id="modal-backdrop">
+      <div class="modal-window">
+        <!-- Top Back Navigation Bar -->
+        <div class="modal-top-bar">
+          <button class="btn-back-nav" onclick="closeModal()">
+            <i class="fa-solid fa-arrow-left"></i> Back to Representatives List
+          </button>
+          <button class="modal-close-btn" id="modal-close-btn" title="Close Modal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <!-- Profile Modal Header -->
+        <div class="modal-profile-header">
+          <img id="modal-avatar" src="" alt="MLA Avatar" class="profile-modal-avatar">
+          <div class="profile-modal-details">
+            <h2 id="modal-name">Representative Name</h2>
+            <div id="modal-subtext" class="profile-subtext">Constituency Info</div>
+            <div style="display:flex; gap:0.5rem; align-items:center;">
+              <span id="modal-portfolio-tag" class="tag-badge designation">Portfolio</span>
+            </div>
+            <div class="profile-quick-stats">
+              <div class="quick-stat-badge"><span>Age</span><strong id="modal-stat-age">--</strong></div>
+              <div class="quick-stat-badge"><span>Assembly Attendance</span><strong id="modal-stat-attendance">--</strong></div>
+              <div class="quick-stat-badge"><span>Net Assets</span><strong id="modal-stat-networth">--</strong></div>
+              <div class="quick-stat-badge"><span>Legal Cases</span><strong id="modal-stat-cases">--</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 17 Module Ordered Tabs -->
+        <div class="modal-tabs-scroller">
+          <button class="modal-tab-btn active" data-mtab="mod-2" onclick="switchModalTab('mod-2')"><i class="fa-solid fa-id-card"></i> 2. Profile</button>
+          <button class="modal-tab-btn" data-mtab="mod-eval" onclick="switchModalTab('mod-eval')"><i class="fa-solid fa-chart-radar"></i> 10-Metric Evaluation</button>
+          <button class="modal-tab-btn" data-mtab="mod-3" onclick="switchModalTab('mod-3')"><i class="fa-solid fa-landmark"></i> 3. Assembly Performance</button>
+          <button class="modal-tab-btn" data-mtab="mod-4" onclick="switchModalTab('mod-4')"><i class="fa-solid fa-circle-question"></i> 4. Questions</button>
+          <button class="modal-tab-btn" data-mtab="mod-5" onclick="switchModalTab('mod-5')"><i class="fa-solid fa-comments"></i> 5. Discussions</button>
+          <button class="modal-tab-btn" data-mtab="mod-6" onclick="switchModalTab('mod-6')"><i class="fa-solid fa-briefcase"></i> 6. Govt Records</button>
+          <button class="modal-tab-btn" data-mtab="mod-7" onclick="switchModalTab('mod-7')"><i class="fa-solid fa-helmet-safety"></i> 7. Projects</button>
+          <button class="modal-tab-btn" data-mtab="mod-promises" onclick="switchModalTab('mod-promises')"><i class="fa-solid fa-handshake"></i> Promise Progress</button>
+          <button class="modal-tab-btn" data-mtab="mod-8" onclick="switchModalTab('mod-8')"><i class="fa-solid fa-star"></i> 8. Feedback & AI</button>
+          <button class="modal-tab-btn" data-mtab="mod-10" onclick="switchModalTab('mod-10')"><i class="fa-solid fa-scale-balanced"></i> 10. Legal Cases</button>
+          <button class="modal-tab-btn" data-mtab="mod-11" onclick="switchModalTab('mod-11')"><i class="fa-solid fa-file-contract"></i> 11. Affidavit</button>
+          <button class="modal-tab-btn" data-mtab="mod-12" onclick="switchModalTab('mod-12')"><i class="fa-solid fa-coins"></i> 12. Assets & Liabilities</button>
+          <button class="modal-tab-btn" data-mtab="mod-13" onclick="switchModalTab('mod-13')"><i class="fa-solid fa-map-location-dot"></i> 13. Office Map</button>
+          <button class="modal-tab-btn" data-mtab="mod-14" onclick="switchModalTab('mod-14')"><i class="fa-solid fa-certificate"></i> 14. Verification</button>
+        </div>
+
+        <div class="modal-body" id="modal-tab-body"></div>
+      </div>
+    </div>
+
+    <!-- Modal Window: Official Assembly Document Viewer -->
+    <div class="modal-backdrop" id="doc-modal-backdrop" style="z-index: 1100;">
+      <div class="modal-window" style="max-width: 850px; background: #ffffff; color: #0f172a; border: 2px solid #cbd5e1;">
+        <div class="modal-top-bar" style="background: #0f172a; color: #ffffff;">
+          <button class="btn-back-nav" onclick="closeDocModal()">
+            <i class="fa-solid fa-arrow-left"></i> Back to Assembly Record
+          </button>
+          <div style="font-size:0.85rem; font-weight:700; color:var(--accent-cyan); display:flex; align-items:center; gap:0.4rem;">
+            <i class="fa-solid fa-certificate"></i> VERIFIED ASSEMBLY RECORD
+          </div>
+          <button class="modal-close-btn" onclick="closeDocModal()" title="Close Document"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div id="doc-modal-body" style="padding: 2rem; background: #ffffff; color: #1e293b; max-height: 80vh; overflow-y: auto;">
+          <!-- Dynamically populated via openDocumentViewerModal in app.js -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Window: Dedicated Login & Password Authentication -->
+    <div class="modal-backdrop" id="auth-modal-backdrop" style="z-index: 1200;">
+      <div class="modal-window" style="max-width: 520px; background: var(--bg-card); border: 1px solid var(--border-color); box-shadow: var(--shadow-lg);">
+        <div class="modal-top-bar">
+          <button class="btn-back-nav" onclick="closeAuthModal()">
+            <i class="fa-solid fa-arrow-left"></i> Cancel
+          </button>
+          <button class="modal-close-btn" onclick="closeAuthModal()" title="Close"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div style="padding: 1.8rem 2rem;">
+          <h3 id="auth-modal-title" style="margin-bottom: 0.4rem; font-size: 1.25rem;">
+            <i class="fa-solid fa-right-to-bracket" style="color:var(--accent-cyan);"></i> Citizen & Admin Sign In
+          </h3>
+          <p id="auth-modal-subtext" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+            Log in with your username and password to submit complaints, evaluate MLAs, or access the admin panel.
+          </p>
+
+          <!-- Quick Fill Demo Login Pills -->
+          <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem; background: rgba(15,23,42,0.6); padding: 0.6rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); align-items: center;">
+            <span style="font-size: 0.75rem; color: var(--text-dim); font-weight: 700;">DEMO:</span>
+            <button type="button" onclick="quickFillDemoLogin('citizen')" style="background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.3); color: var(--accent-cyan); padding: 0.25rem 0.6rem; border-radius: var(--radius-md); font-size: 0.75rem; cursor: pointer;">
+              Citizen (citizen / citizen123)
+            </button>
+            <button type="button" onclick="quickFillDemoLogin('admin')" style="background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); color: #f87171; padding: 0.25rem 0.6rem; border-radius: var(--radius-md); font-size: 0.75rem; cursor: pointer;">
+              Admin (admin / admin123)
+            </button>
+          </div>
+
+          <form id="auth-main-form" onsubmit="handleAuthFormSubmit(event)">
+            <div class="form-group">
+              <label class="form-label">Account Role</label>
+              <select id="auth-role-select" class="form-control">
+                <option value="citizen">Citizen User</option>
+                <option value="admin">Secretariat Administrator</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Username</label>
+              <input type="text" id="auth-username-input" class="form-control" placeholder="Enter username (e.g. admin, citizen)" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Password</label>
+              <input type="password" id="auth-password-input" class="form-control" placeholder="Enter secure password" required>
+            </div>
+
+            <!-- Extra Fields for Registration -->
+            <div id="auth-register-fields" style="display: none;">
+              <div class="form-group">
+                <label class="form-label">Your Full Name</label>
+                <input type="text" id="auth-name-input" class="form-control" placeholder="e.g. Anand Gowda">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Constituency</label>
+                <select id="auth-constituency-select" class="form-control"></select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input type="email" id="auth-email-input" class="form-control" placeholder="name@example.com">
+              </div>
+            </div>
+
+            <button type="submit" id="auth-submit-btn" class="btn-primary" style="width: 100%; margin-top: 0.5rem; padding: 0.85rem;">
+              <i class="fa-solid fa-lock-open"></i> Sign In to Account
+            </button>
+          </form>
+
+          <div id="auth-toggle-link" style="text-align: center; margin-top: 1rem; font-size: 0.85rem; color: var(--text-muted);">
+            Don't have an account? <a href="javascript:void(0)" onclick="switchAuthMode('register')" style="color:var(--accent-cyan); font-weight:700; text-decoration:underline;">Create Citizen Account</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+  </div>
+
+  <script src="auth.js"></script>
+  <script src="karnataka_mlas.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
